@@ -1,0 +1,81 @@
+from sqlalchemy import (
+    Column,
+    Index,
+    Integer,
+    Text,
+    DateTime,
+    PickleType
+    )
+
+from sqlalchemy import func
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.dialects.postgresql.base import UUID
+
+from sqlalchemy.orm import (
+    scoped_session,
+    sessionmaker,
+    )
+
+from zope.sqlalchemy import ZopeTransactionExtension
+from passlib.hash import sha512_crypt as crypt
+
+class Base(object):
+    id = Column(UUID, primary_key=True, server_default=func.uuid_generate_v4())
+    create_date = Column(DateTime(timezone=True), nullable=False,
+        server_default=func.now())
+    modify_date = Column(DateTime(timezone=True), server_default=func.now(),
+        server_onupdate=func.now())
+
+    @classmethod
+    def get_by_id(cls, id):
+        return DBSession.query(cls).filter(cls.id==id).first()
+
+
+DBSession = scoped_session(sessionmaker(extension=ZopeTransactionExtension()))
+Base = declarative_base(cls=Base)
+
+def hash_password(password):
+    return unicode(crypt.encrypt(password))
+
+class User(Base):
+    __tablename__ = 'user'
+    first_name = Column(Text)
+    last_name = Column(Text)
+    username = Column(Text, nullable=False)
+    _password = Column('password', Text, nullable=False)
+
+    @property
+    def password(self):
+        return self._password
+    @password.setter
+    def password(self, password):
+        self._password = hash_password(password)
+
+    @classmethod
+    def get_by_username(cls, username):
+        return DBSession.query(cls).filter(cls.username==username).first()
+
+    @classmethod
+    def check_password(cls, username, password):
+        user = cls.get_by_username(username)
+        if not user:
+            return False
+
+        try:
+            is_valid = crypt.verify(password, user.password)
+            return is_valid
+        except ValueError:
+            return False
+
+class UserSession(Base):
+    __tablename__ = u'user_session'
+
+    namespace = Column(Text, primary_key=True)
+    accessed = Column(DateTime, nullable=False)
+    created = Column(DateTime, nullable=False)
+    data = Column(PickleType, nullable=False)
+
+    # make sure to unset default columns
+    id = None
+    create_date = None
+    modify_date = None

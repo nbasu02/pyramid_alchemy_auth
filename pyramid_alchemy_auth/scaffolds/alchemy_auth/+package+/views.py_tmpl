@@ -1,0 +1,87 @@
+from pyramid.response import Response
+from pyramid.view import view_config
+from pyramid.httpexceptions import HTTPFound
+
+from sqlalchemy.exc import DBAPIError
+
+from .models import (
+    DBSession,
+    User
+    )
+from {{package}}.forms.user_forms import RegistrationForm, SignInForm
+from pyramid.security import authenticated_userid, remember, forget
+
+
+class BaseView(object):
+
+    def __init__(self, request):
+        self.request = request
+        self.user_id = authenticated_userid(request)
+        self.response = {}
+        self.response['user'] = User.get_by_id(self.user_id)
+
+class Home(BaseView):
+    @view_config(route_name='home', renderer='{{package}}:templates/index.html.mako',
+        request_method='GET')
+    def home(self):
+        return self.response
+
+class AuthenticationView(BaseView):
+    @view_config(route_name='sign_up', renderer='{{package}}:templates/sign_up.html.mako',
+        request_method='GET')
+    def sign_up_get(self):
+        form = RegistrationForm()
+        self.response['registration_form'] = form
+        return self.response
+
+    @view_config(route_name='sign_up', renderer='{{package}}:templates/sign_up.html.mako',
+        request_method='POST')
+    def sign_up_post(self):
+        form = RegistrationForm(self.request.POST)
+        if form.validate():
+            del form.confirm
+            user = User(**form.data)
+            DBSession.add(user)
+            headers = remember(self.request, user.id)
+            return HTTPFound(
+                location=self.request.route_url('home'),
+                headers=headers
+                )
+        else:
+            self.response['registration_form'] = form
+            return self.response            
+
+    @view_config(route_name='sign_in', renderer='{{package}}:templates/sign_in.html.mako',
+        request_method='GET')
+    def sign_in_get(self):
+        form = SignInForm(self.request.POST)
+        if form.validate():
+            if User.check_password(form.username.data, form.password.data):
+                user = User.get_by_username(form.username.data)
+                headers = remember(self.request, user.id)
+                return HTTPFound(
+                    location=self.request.route_url('home'),
+                    headers=headers
+                    )
+        self.response['sign_in_form'] = form
+        return self.response
+
+    @view_config(route_name='sign_in', renderer='{{package}}:templates/sign_in.html.mako',
+        request_method='POST')
+    def sign_in_post(self):
+        form = SignInForm(self.request.POST)
+        if form.validate():
+            if User.check_password(form.username.data, form.password.data):
+                user = User.get_by_username(form.username.data)
+                headers = remember(self.request, user.id)
+                return HTTPFound(
+                    location=self.request.route_url('home'),
+                    headers=headers
+                    )
+
+        return self.response
+
+    @view_config(route_name='sign_out', request_method='GET')
+    def sign_out(self):
+        forget(self.request)
+        return HTTPFound(location=self.request.route_url('home'))
