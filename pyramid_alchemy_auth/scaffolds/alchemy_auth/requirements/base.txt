@@ -12,7 +12,6 @@ decorator
 funcsigs
 ipython
 ipython-genutils
-mytest
 passlib
 path.py
 pexpect
@@ -32,7 +31,6 @@ transaction
 translationstring
 venusian
 waitress
-wsgiref
 zope.deprecation
 zope.interface
 zope.sqlalchemy
