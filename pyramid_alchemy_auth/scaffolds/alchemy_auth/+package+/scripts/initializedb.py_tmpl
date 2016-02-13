@@ -16,3 +16,4 @@ from ..models import (
 
 def main(argv=sys.argv):
     os.system('createdb -U postgres {{package}}')
+    os.system('alembic upgrade head')
