@@ -6,6 +6,7 @@ First you need to install virtualenv and create a virtualenv in your filesystem
 - easy_install pip #Optional again, but pip is generally more used
 - pip install pyramid
 - cd /path/to/this/directory
+- python setup.py install # or pip install .
 - pcreate my_project_name -s alchemy_auth
 - cd my_project_name
 
