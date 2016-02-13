@@ -18,6 +18,7 @@ from sqlalchemy.orm import (
 
 from zope.sqlalchemy import ZopeTransactionExtension
 from passlib.hash import sha512_crypt as crypt
+from future.types import str
 
 class Base(object):
     id = Column(UUID, primary_key=True, server_default=func.uuid_generate_v4())
@@ -35,7 +36,7 @@ DBSession = scoped_session(sessionmaker(extension=ZopeTransactionExtension()))
 Base = declarative_base(cls=Base)
 
 def hash_password(password):
-    return unicode(crypt.encrypt(password))
+    return str(crypt.encrypt(password))
 
 class User(Base):
     __tablename__ = 'user'
@@ -68,7 +69,7 @@ class User(Base):
             return False
 
 class UserSession(Base):
-    __tablename__ = u'user_session'
+    __tablename__ = 'user_session'
 
     namespace = Column(Text, primary_key=True)
     accessed = Column(DateTime, nullable=False)
