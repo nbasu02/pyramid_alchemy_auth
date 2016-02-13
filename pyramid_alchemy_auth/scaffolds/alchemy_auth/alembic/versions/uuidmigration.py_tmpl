@@ -1,0 +1,22 @@
+"""Create uuid extension
+
+Revision ID: 67974c16444e
+Revises: None
+Create Date: 2016-02-12 22:30:33.727984
+
+"""
+
+# revision identifiers, used by Alembic.
+revision = '67974c16444e'
+down_revision = None
+
+from alembic import op
+import sqlalchemy as sa
+
+
+def upgrade():
+    op.execute('CREATE EXTENSION IF NOT EXISTS "uuid-ossp";')
+
+
+def downgrade():
+    pass
