@@ -6,10 +6,21 @@ First you need to install virtualenv and create a virtualenv in your filesystem
 - easy_install pip #Optional again, but pip is generally more used
 - pip install pyramid
 - cd /path/to/this/directory
-- python setup.py install # or pip install
 - pcreate my_project_name -s alchemy_auth
+- cd my_project_name
 
-What is in this project that the normal alchemy scaffold?
+Once the project is created, you then need to install it into your virtualenv
+- python setup.py develop # or pip install -e .
+Then install necessary libraries
+- pip install -r requirements.txt # or replace with your own
+Then initialize the database
+initialize_my_project_name_db # will create a postgresql database and create the necessary tables.
+
+Your application should now ready.
+
+- pserve development.ini --reload
+
+What is in this project that's not in the normal alchemy scaffold?
 
 This is a very personalized scaffold so in the future I can skip a number of basic steps when starting up a new project.  Changes over the alchemy scaffold include:
 
