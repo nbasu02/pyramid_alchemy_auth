@@ -13,11 +13,19 @@ First you need to install virtualenv and create a virtualenv in your filesystem
 Once the project is created, you then need to install it into your virtualenv
 - python setup.py develop # or pip install -e .
 Then install necessary libraries
-- pip install -r requirements.txt # or replace with your own
-Then initialize the database
-initialize_my_project_name_db # will create a postgresql database and create the necessary tables.
+- pip install -r requirements/python2.txt # or replace with your own
+OR for python 3 users
+- pip install -r requirements/python3.txt
 
-Your application should now ready.
+You can and should replace this with your own requirements.txt
+
+Next, initialize the database
+- initialize_my_project_name_db
+
+This will create a postgresql database and create the necessary tables, along
+with the corresponding alembic migrations
+
+Your application should now be ready.
 
 - pserve development.ini --reload
 
